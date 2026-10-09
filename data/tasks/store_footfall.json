@@ -1,0 +1,86 @@
+{
+  "id": "store_footfall",
+  "order": 2,
+  "title": "Store footfall",
+  "intro": "A short work sample. Answer in your own words, the way you would explain it to a manager.",
+  "columns": [
+    "Period",
+    "Store visitors",
+    "Purchases"
+  ],
+  "rows": [
+    [
+      "Week 1",
+      1200,
+      300
+    ],
+    [
+      "Week 2",
+      1600,
+      320
+    ]
+  ],
+  "question": "Did the store perform better in Week 2? What would you investigate next?",
+  "answer_key": {
+    "verdict": "No. Purchases rose in total, but a smaller share of visitors bought something.",
+    "values": {
+      "week1_rate": "25% (300 / 1,200)",
+      "week2_rate": "20% (320 / 1,600)",
+      "change": "Down 5 percentage points, a 20% relative drop"
+    },
+    "interpretation": "Visitors grew about 33% but purchases grew only about 7%, so a smaller share of visitors bought in Week 2.",
+    "recommendation_examples_valid": [
+      "Check whether popular items were out of stock in Week 2.",
+      "Check checkout queues or staffing at busy times.",
+      "Check whether a promotion or local event brought in visitors who were only browsing.",
+      "Check whether the footfall counter changed or double-counted visitors."
+    ],
+    "recommendation_examples_invalid": [
+      {
+        "text": "Open another store.",
+        "why": "Contradicts the data. More visitors already came with a lower purchase rate."
+      },
+      {
+        "text": "Close the store.",
+        "why": "Not proportionate. A drastic step before anyone knows the cause."
+      },
+      {
+        "text": "Check online reviews of the brand.",
+        "why": "Not linked to the change in the purchase rate."
+      }
+    ],
+    "note": "Valid examples are illustrations, not the only correct answers.",
+    "leak_terms": [
+      "25%",
+      "20%",
+      "1 in 4",
+      "1 in 5",
+      "0.25",
+      "5 percentage points",
+      "300/1200",
+      "320/1600"
+    ]
+  },
+  "coaching": {
+    "metric_calculation": {
+      "nudge": "Both columns went up. Is comparing totals a fair way to judge the two weeks when the number of visitors changed?",
+      "hint": "For each week, work out what fraction of store visitors made a purchase. Then compare the two weeks."
+    },
+    "interpretation": {
+      "nudge": "What does your comparison say about how well the store turned visitors into buyers?",
+      "hint": "Ask yourself whether purchases grew at the same pace as visitors, and what that says about the store."
+    },
+    "recommendation": {
+      "nudge": "What could cause the change you found in the numbers, and how would you check it this week?",
+      "hint": "Think of one thing that could cause a smaller share of visitors to buy, and how you would check it this week."
+    }
+  },
+  "mock": {
+    "rate_a": "\\b25\\s*%|\\b0\\.25\\b|1\\s*(in|out of)\\s*4\\b",
+    "rate_b": "\\b20\\s*%|\\b0\\.20?\\b|1\\s*(in|out of)\\s*5\\b",
+    "derived": "\\b5\\s*(percentage\\s*points?|points?|pp)\\b",
+    "valid_rec": "\\b(stock|out of stock|queues?|checkout|staff\\w*|promotion|promo|event|counter|layout|pric\\w*|display)\\b",
+    "spend_rec": "\\b(open (another|a new|more) stores?|spend more|more ads|increase (the )?budget|advertis\\w*)\\b",
+    "rebuild_rec": "\\b(close|shut|scrap|rebuild|delete)\\b"
+  }
+}

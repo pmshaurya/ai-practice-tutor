@@ -1,0 +1,86 @@
+{
+  "id": "email_campaign",
+  "order": 1,
+  "title": "Email campaign",
+  "intro": "A short work sample. Answer in your own words, the way you would explain it to a manager.",
+  "columns": [
+    "Period",
+    "Emails opened",
+    "Link clicks"
+  ],
+  "rows": [
+    [
+      "Week 1",
+      2000,
+      160
+    ],
+    [
+      "Week 2",
+      3000,
+      180
+    ]
+  ],
+  "question": "Did the email campaign perform better in Week 2? What would you investigate next?",
+  "answer_key": {
+    "verdict": "No. Clicks rose in total, but a smaller share of people who opened the email clicked.",
+    "values": {
+      "week1_rate": "8% (160 / 2,000)",
+      "week2_rate": "6% (180 / 3,000)",
+      "change": "Down 2 percentage points, a 25% relative drop"
+    },
+    "interpretation": "Opens grew 50% but clicks grew only 12.5%, so a smaller share of openers clicked in Week 2.",
+    "recommendation_examples_valid": [
+      "Check whether the email content or call to action changed in Week 2.",
+      "Check whether the link worked on all devices, especially mobile.",
+      "Break Week 2 down by audience segment, for example new vs existing subscribers.",
+      "Check whether a new subject line attracted openers who were less interested in the offer."
+    ],
+    "recommendation_examples_invalid": [
+      {
+        "text": "Send more emails.",
+        "why": "Contradicts the data. More opens in Week 2 came with a lower click rate."
+      },
+      {
+        "text": "Stop email marketing.",
+        "why": "Not proportionate. A drastic step before anyone knows the cause."
+      },
+      {
+        "text": "Check how many sales we made.",
+        "why": "Not in the data, and the link to the drop is not explained."
+      }
+    ],
+    "note": "Valid examples are illustrations, not the only correct answers.",
+    "leak_terms": [
+      "8%",
+      "6%",
+      "25%",
+      "12.5%",
+      "0.06",
+      "2 percentage points",
+      "160/2000",
+      "180/3000"
+    ]
+  },
+  "coaching": {
+    "metric_calculation": {
+      "nudge": "Both columns went up. Is comparing totals a fair way to judge the two weeks when the number of opens changed?",
+      "hint": "For each week, work out what fraction of people who opened the email clicked the link. Then compare the two weeks."
+    },
+    "interpretation": {
+      "nudge": "What does your comparison say about how well the email turned opens into clicks?",
+      "hint": "Ask yourself whether clicks grew at the same pace as opens, and what that says about the email."
+    },
+    "recommendation": {
+      "nudge": "What could cause the change you found in the numbers, and how would you check it this week?",
+      "hint": "Think of one thing that could cause a smaller share of openers to click, and how you would check it this week."
+    }
+  },
+  "mock": {
+    "rate_a": "\\b8\\s*%|\\b0\\.08\\b|1\\s*(in|out of)\\s*12\\.5\\b",
+    "rate_b": "\\b6\\s*%|\\b0\\.06\\b|1\\s*(in|out of)\\s*16\\.7",
+    "derived": "\\b25\\s*%|\\b2\\s*(percentage\\s*points?|points?|pp)\\b",
+    "valid_rec": "\\b(content|call to action|cta|broken link|link work\\w*|button|device|mobile|segment|audience|subscribers?|subject line|template|tracking)\\b",
+    "spend_rec": "\\b(send more|more emails|spend more|increase (the )?budget|bigger list)\\b",
+    "rebuild_rec": "\\b(stop|scrap|cancel|delete|shut down)\\b"
+  }
+}
