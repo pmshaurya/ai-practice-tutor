@@ -1,0 +1,96 @@
+{
+  "role": "Entry-level operations analyst",
+  "skills": [
+    {
+      "id": "metric_calculation",
+      "name": "Metric calculation",
+      "requirement": "Use basic calculations to compare performance fairly.",
+      "levels": {
+        "not_yet_shown": "Compares raw totals only. No rate calculated.",
+        "partially": "Calculates the rate for one period only, or makes a calculation error.",
+        "demonstrated": "Calculates the rate for both periods in any format (percent, ratio, decimal), or states a correct result that depends on both rates, such as the size of the change."
+      },
+      "points_by_attempt": [
+        3,
+        2,
+        1
+      ],
+      "lesson": "conversion_rate"
+    },
+    {
+      "id": "interpretation",
+      "name": "Interpretation",
+      "requirement": "Interpret performance using the right metric.",
+      "levels": {
+        "not_yet_shown": "Judges performance on raw totals only.",
+        "partially": "Notices the rate changed but does not explain what it means for performance.",
+        "demonstrated": "Explains that the totals and the rate moved differently, and judges performance on the rate."
+      },
+      "points_by_attempt": [
+        3,
+        2,
+        1
+      ],
+      "lesson": "conversion_rate"
+    },
+    {
+      "id": "recommendation",
+      "name": "Recommendation",
+      "requirement": "Recommend a next step backed by the data.",
+      "levels": {
+        "not_yet_shown": "Recommendation is missing, unsupported, contradicted by the data, or out of proportion to the problem.",
+        "partially": "Suggests a next step but does not connect it to what the numbers show.",
+        "demonstrated": "Proposes a specific, checkable investigation that could explain the change in the rate."
+      },
+      "tests": {
+        "tied_to_finding": "Addresses the change in the rate the data shows.",
+        "consistent_with_data": "Does not contradict the numbers.",
+        "proportionate": "Sized to the problem. A drop like this calls for investigating, not rebuilding or large spend.",
+        "specific_and_checkable": "Someone could act on it this week and learn something."
+      },
+      "points_by_attempt": [
+        4,
+        3,
+        2
+      ],
+      "lesson": "data_backed_recommendation",
+      "test_feedback": {
+        "consistent_with_data": "It doesn't fit what the numbers show.",
+        "proportionate": "It's a big step to take before you know what caused the change.",
+        "tied_to_finding": "It isn't connected to the change you found, so it wouldn't tell you why it happened.",
+        "specific_and_checkable": "It's too general to act on this week or learn something from."
+      }
+    }
+  ],
+  "rules": [
+    "Judge meaning, not wording. Any correct format counts.",
+    "A skill counts only if the learner shows it in their own words in this answer.",
+    "Writing style, grammar, spelling and length are never scored.",
+    "Sample recommendations are examples only. Any recommendation that passes all four tests counts.",
+    "Never reveal the answer, the correct values, or the verdict."
+  ],
+  "practice_notes": [
+    {
+      "code": "working_not_shown",
+      "label": "Result given without the underlying rates"
+    },
+    {
+      "code": "change_described_imprecisely",
+      "label": "Change between two rates described imprecisely (percent vs percentage points)"
+    },
+    {
+      "code": "ratio_named_inversely",
+      "label": "Ratio named the wrong way round"
+    }
+  ],
+  "guardrail_messages": {
+    "asked_for_answer": "I can't write the answer for you, but I can help you get there. Have a go in your own words, even a rough first try, and I'll give you feedback. You can also ask for a hint.",
+    "abusive": "Let's keep this respectful. When you're ready, have another go at the task. This message wasn't counted as an attempt.",
+    "off_topic": "That doesn't look like an answer to the task. Have a go at the question above, and ask for a hint if you're stuck."
+  },
+  "safe_feedback": "Thanks for your attempt. Look at the questions below before your next try.",
+  "assumptions": [
+    "All data is fictional.",
+    "Lesson links are simulated. There is no course library in this prototype."
+  ]
+}

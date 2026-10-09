@@ -1,0 +1,5 @@
+[
+  {"id": "conversion_rate", "title": "Conversion rates: comparing like with like", "minutes": 10, "url": "#lesson-conversion-rate", "simulated": true},
+  {"id": "percentage_points", "title": "Percentages vs percentage points", "minutes": 10, "url": "#lesson-percentage-points", "simulated": true},
+  {"id": "data_backed_recommendation", "title": "Turning a finding into a next step", "minutes": 15, "url": "#lesson-recommendation", "simulated": true}
+]
