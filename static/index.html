@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Practice Tutor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F4F7F6;
+    --sheet: #FFFFFF;
+    --ink: #17263A;
+    --muted: #5A6976;
+    --grid: #D3DCE1;
+    --grid-head: #EBF0F2;
+    --ledger: #2E7D5B;
+    --ledger-soft: #E4F2EA;
+    --amber: #8F5A0F;
+    --amber-soft: #FBF0DC;
+    --stop: #9E3838;
+    --stop-soft: #F7E5E5;
+    --focus: #2563A8;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    font-variant-numeric: tabular-nums;
+  }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+  .bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 0.85rem 1.25rem; background: var(--sheet); border-bottom: 1px solid var(--grid);
+  }
+  .brand { font-weight: 700; font-size: 1.05rem; letter-spacing: -0.01em; }
+  .brand span { color: var(--muted); font-weight: 500; }
+  .mode { font-size: 0.82rem; padding: 0.25rem 0.6rem; border-radius: 999px; border: 1px solid var(--grid); color: var(--muted); white-space: nowrap; }
+  .mode.live { border-color: var(--ledger); color: var(--ledger); background: var(--ledger-soft); }
+  .mode.mock { border-color: var(--amber); color: var(--amber); background: var(--amber-soft); }
+
+  .tabs { display: flex; gap: 0.25rem; max-width: 780px; margin: 1.5rem auto 0; padding: 0 1.25rem; }
+  .tab {
+    font: inherit; font-size: 0.95rem; font-weight: 600; color: var(--muted); background: none;
+    border: 1px solid transparent; border-bottom: none; padding: 0.55rem 0.95rem; border-radius: 6px 6px 0 0; cursor: pointer;
+  }
+  .tab[aria-selected="true"] { color: var(--ink); background: var(--sheet); border-color: var(--grid); }
+  .tab:disabled { cursor: not-allowed; opacity: 0.55; }
+
+  main { max-width: 780px; margin: 0 auto 4rem; padding: 0 1.25rem; }
+  .panel { background: var(--sheet); border: 1px solid var(--grid); border-radius: 0 8px 8px 8px; padding: 1.5rem; }
+  .panel[hidden] { display: none; }
+
+  h1 { font-size: 1.6rem; line-height: 1.2; letter-spacing: -0.02em; margin: 0 0 0.35rem; }
+  h2 { font-size: 1.1rem; margin: 2rem 0 0.6rem; }
+  p { margin: 0 0 0.9rem; max-width: 68ch; }
+  .muted { color: var(--muted); }
+  .small { font-size: 0.88rem; }
+
+  /* The sheet: the one memorable element */
+  .workbook { margin: 1.25rem 0 1.5rem; border: 1px solid var(--grid); border-radius: 6px; overflow: hidden; }
+  .fx { display: flex; align-items: stretch; border-bottom: 1px solid var(--grid); background: var(--sheet); }
+  .fx b { font-style: italic; font-weight: 600; color: var(--muted); padding: 0.6rem 0.75rem; border-right: 1px solid var(--grid); background: var(--grid-head); font-family: Georgia, "Times New Roman", serif; }
+  .fx div { padding: 0.6rem 0.85rem; font-weight: 600; }
+  .scroll { overflow-x: auto; }
+  table.sheet { border-collapse: collapse; width: 100%; min-width: 420px; }
+  .sheet th, .sheet td { border: 1px solid var(--grid); padding: 0.5rem 0.75rem; text-align: left; }
+  .sheet thead th { background: var(--grid-head); color: var(--muted); font-weight: 500; font-size: 0.8rem; text-align: center; padding: 0.25rem; }
+  .sheet tbody th { background: var(--grid-head); color: var(--muted); font-weight: 500; font-size: 0.8rem; text-align: center; width: 2.5rem; padding: 0.25rem; }
+  .sheet tr:first-child td { font-weight: 600; }
+  .sheet td.num { text-align: right; }
+  .sheet tr:first-child td.num, .sheet tr:first-child td { text-align: left; }
+
+  label { display: block; font-weight: 600; margin-bottom: 0.4rem; }
+  input[type=text], textarea {
+    width: 100%; font: inherit; color: var(--ink); background: var(--sheet);
+    border: 1px solid var(--grid); border-radius: 6px; padding: 0.7rem 0.8rem;
+  }
+  textarea { min-height: 8.5rem; resize: vertical; }
+  .row { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-top: 0.8rem; }
+  .spacer { flex: 1; }
+  button.btn {
+    font: inherit; font-weight: 600; border-radius: 6px; padding: 0.6rem 1rem; cursor: pointer;
+    border: 1px solid var(--ink); background: var(--ink); color: #fff;
+  }
+  button.btn.secondary { background: var(--sheet); color: var(--ink); border-color: var(--grid); }
+  button.btn:disabled { opacity: 0.5; cursor: progress; }
+  .counter { font-size: 0.9rem; color: var(--muted); }
+  .error { color: var(--stop); font-weight: 500; margin-top: 0.6rem; }
+
+  .thread { margin-top: 1.75rem; display: grid; gap: 1rem; }
+  .entry { border-left: 3px solid var(--grid); padding: 0.15rem 0 0.15rem 1rem; }
+  .entry .who { font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 0.25rem; }
+  .entry.answer .text { white-space: pre-wrap; }
+  .entry.feedback { border-color: var(--ledger); }
+  .entry.hint { border-color: var(--amber); }
+  .entry.blocked { border-color: var(--stop); }
+  .entry ul { margin: 0.4rem 0 0; padding-left: 1.2rem; }
+  .entry li { margin-bottom: 0.25rem; }
+  .lesson { display: inline-block; margin-top: 0.55rem; font-size: 0.9rem; color: var(--amber); background: var(--amber-soft); padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; }
+
+  table.result { border-collapse: collapse; width: 100%; margin: 0.4rem 0 1rem; }
+  .result th, .result td { border-bottom: 1px solid var(--grid); padding: 0.55rem 0.4rem; text-align: left; vertical-align: top; }
+  .result th { font-size: 0.85rem; color: var(--muted); font-weight: 600; }
+  .result td.pts { text-align: right; white-space: nowrap; }
+
+  .scoreline { display: flex; align-items: flex-end; gap: 1.25rem; flex-wrap: wrap; margin: 1rem 0 0.5rem; }
+  .score { font-size: 2.6rem; font-weight: 700; line-height: 1; letter-spacing: -0.03em; }
+  .score small { font-size: 1rem; color: var(--muted); font-weight: 500; letter-spacing: 0; }
+  .strip { display: flex; gap: 4px; }
+  .cell { min-width: 4.2rem; padding: 0 0.45rem; height: 1.7rem; border: 1px solid var(--grid); border-radius: 3px; display: grid; place-items: center; font-size: 0.72rem; font-weight: 700; }
+  .cell.first { background: var(--ledger); border-color: var(--ledger); color: #fff; }
+  .cell.later { background: var(--ledger-soft); border-color: var(--ledger); color: var(--ledger); }
+  .cell.none { background: var(--sheet); color: var(--muted); }
+  blockquote { margin: 0.3rem 0 0.8rem; padding: 0.5rem 0.8rem; background: var(--paper); border-radius: 4px; font-size: 0.95rem; }
+  .flag { background: var(--amber-soft); color: var(--amber); padding: 0.6rem 0.8rem; border-radius: 6px; font-weight: 500; }
+  details { margin-top: 1rem; }
+  summary { cursor: pointer; font-weight: 600; }
+  .note-list { margin: 0.3rem 0 0; padding-left: 1.2rem; }
+
+  .timeline { list-style: none; margin: 0.5rem 0 0; padding: 0; }
+  .step { position: relative; padding: 0 0 1.25rem 1.6rem; border-left: 2px solid var(--grid); margin-left: 0.55rem; }
+  .step:last-child { border-left-color: transparent; padding-bottom: 0.25rem; }
+  .step::before { content: ""; position: absolute; left: -0.5rem; top: 0.2rem; width: 0.85rem; height: 0.85rem; border-radius: 50%; background: var(--sheet); border: 2px solid var(--ink); }
+  .step h3 { font-size: 0.98rem; margin: 0 0 0.35rem; }
+  .step .aside { font-size: 0.88rem; color: var(--amber); background: var(--amber-soft); padding: 0.35rem 0.6rem; border-radius: 4px; margin: 0 0 0.5rem; }
+  .step .aside.stop { color: var(--stop); background: var(--stop-soft); }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.45rem 0; }
+  .chip { font-size: 0.8rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 999px; border: 1px solid var(--grid); color: var(--muted); }
+  .chip.demonstrated { color: var(--ledger); border-color: var(--ledger); background: var(--ledger-soft); }
+  .chip.partially { color: var(--amber); border-color: var(--amber); background: var(--amber-soft); }
+  .step .said { white-space: pre-wrap; background: var(--paper); border-radius: 4px; padding: 0.5rem 0.75rem; margin: 0.3rem 0; font-size: 0.95rem; }
+  .step .fb { font-size: 0.92rem; color: var(--muted); margin: 0.3rem 0 0; }
+
+  @media (max-width: 560px) {
+    .panel { padding: 1.1rem; }
+    h1 { font-size: 1.35rem; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .entry.new { animation: arrive 260ms ease-out; }
+    @keyframes arrive { from { background: var(--ledger-soft); } to { background: transparent; } }
+  }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <div class="brand">AI Practice Tutor <span id="roleName"></span></div>
+    <div id="mode" class="mode">Loading</div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tabLearner" aria-selected="true" aria-controls="learner">Learner</button>
+    <button class="tab" role="tab" id="tabEmployer" aria-selected="false" aria-controls="employer" disabled title="Available once the learner shares their work sample">Employer view</button>
+  </div>
+
+  <main>
+    <section class="panel" id="learner" role="tabpanel" aria-labelledby="tabLearner">
+      <div id="start">
+        <h1>Practise a real work task</h1>
+        <p class="muted">One short task, feedback on your thinking, and up to three tries. At the end you'll see what you've shown and what to practise next.</p>
+        <label for="name">Your name</label>
+        <input type="text" id="name" autocomplete="given-name" placeholder="e.g. Shreya">
+        <div class="row"><button class="btn" id="startBtn">Start practice</button></div>
+        <div class="error" id="startError" role="alert"></div>
+      </div>
+
+      <div id="practice" hidden>
+        <h1 id="taskTitle"></h1>
+        <p class="muted" id="taskIntro"></p>
+        <p class="small muted" id="retakeNote" hidden></p>
+        <div class="workbook">
+          <div class="fx"><b>fx</b><div id="question"></div></div>
+          <div class="scroll"><table class="sheet" id="sheet"></table></div>
+        </div>
+
+        <div id="composer">
+          <label for="answer">Your answer</label>
+          <textarea id="answer" placeholder="Explain what the numbers show and what you would check next."></textarea>
+          <div class="row">
+            <button class="btn" id="submitBtn">Submit answer</button>
+            <button class="btn secondary" id="hintBtn">Get a hint (1 available)</button>
+            <button class="btn secondary" id="finishBtn" hidden>Finish and see results</button>
+            <span class="spacer"></span>
+            <span class="counter" id="counter"></span>
+          </div>
+          <div class="error" id="practiceError" role="alert"></div>
+        </div>
+
+        <div class="thread" id="thread" aria-live="polite"></div>
+
+        <div id="progress" hidden>
+          <h2>What you've shown</h2>
+          <table class="result"><thead><tr><th>Skill</th><th>When</th></tr></thead><tbody id="progressRows"></tbody></table>
+          <div id="stillWrap"><h2>Still to practise</h2><ul class="note-list" id="still"></ul></div>
+          <h2>Your next step</h2>
+          <p id="nextStep"></p>
+          <div class="row">
+            <button class="btn" id="shareBtn">Share with employer</button>
+            <button class="btn secondary" id="retakeBtn">Retake with a new task</button>
+          </div>
+          <p class="muted small" id="shareNote">Your work sample stays private until you share it.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="employer" role="tabpanel" aria-labelledby="tabEmployer" hidden>
+      <div id="employerBody"></div>
+    </section>
+  </main>
+
+<script>
+const state = { sessionId: null, name: null, config: null, report: null, attempt: 0, hintUsed: false };
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const LEVEL = { not_yet_shown: "Not yet shown", partially: "Partially", demonstrated: "Demonstrated" };
+const SHORT = { metric_calculation: "Calc", interpretation: "Interp", recommendation: "Rec" };
+const FINISH = {
+  all_shown: "Finished early: all three skills shown",
+  max_attempts: "Finished: all attempts used",
+  learner_finished: "Finished: the learner chose to stop",
+};
+
+async function api(path, body) {
+  const opts = body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {};
+  const res = await fetch(path, opts);
+  const data = await res.json().catch(() => ({ error: "The server sent an unexpected response." }));
+  if (!res.ok) throw new Error(data.error || "Request failed.");
+  return data;
+}
+
+function setBusy(busy) {
+  ["submitBtn", "finishBtn"].forEach((id) => { $(id).disabled = busy; });
+  $("hintBtn").disabled = busy || state.hintUsed;
+}
+
+function setHintUsed(used) {
+  state.hintUsed = used;
+  $("hintBtn").disabled = used;
+  $("hintBtn").textContent = used ? "Hint used" : "Get a hint (1 available)";
+}
+
+function updateCounter() {
+  const max = state.config.max_attempts;
+  $("counter").textContent = `Attempt ${Math.min(state.attempt + 1, max)} of ${max}`;
+  $("finishBtn").hidden = state.attempt === 0;
+}
+
+function addEntry(kind, who, html) {
+  const div = document.createElement("div");
+  div.className = `entry ${kind} new`;
+  div.innerHTML = `<div class="who">${esc(who)}</div>${html}`;
+  $("thread").appendChild(div);
+  setTimeout(() => div.classList.remove("new"), 400);
+}
+
+function renderTask(task, retakeNumber) {
+  $("taskTitle").textContent = task.title;
+  $("taskIntro").textContent = task.intro;
+  $("question").textContent = task.question;
+  $("retakeNote").hidden = !retakeNumber;
+  $("retakeNote").textContent = retakeNumber ? `Retake ${retakeNumber}: a new task with different data.` : "";
+  const cols = ["A", "B", "C", "D"].slice(0, task.columns.length);
+  const head = `<thead><tr><th aria-hidden="true"></th>${cols.map((c) => `<th aria-hidden="true">${c}</th>`).join("")}</tr></thead>`;
+  const rows = [task.columns, ...task.rows].map((r, i) =>
+    `<tr><th aria-hidden="true">${i + 1}</th>${r.map((v) => `<td class="${typeof v === "number" ? "num" : ""}">${esc(typeof v === "number" ? v.toLocaleString("en-IN") : v)}</td>`).join("")}</tr>`
+  ).join("");
+  $("sheet").innerHTML = head + `<tbody>${rows}</tbody>`;
+}
+
+function resetPractice() {
+  state.attempt = 0;
+  state.report = null;
+  $("thread").innerHTML = "";
+  $("answer").value = "";
+  $("practiceError").textContent = "";
+  $("composer").hidden = false;
+  $("progress").hidden = true;
+  $("shareBtn").disabled = false;
+  $("shareBtn").textContent = "Share with employer";
+  $("shareNote").textContent = "Your work sample stays private until you share it.";
+  setHintUsed(false);
+  setBusy(false);
+  updateCounter();
+}
+
+async function startSession(name) {
+  const s = await api("/api/session", { name });
+  state.sessionId = s.session_id;
+  state.name = s.name;
+  renderTask(s.task, s.retake_number);
+  $("start").hidden = true;
+  $("practice").hidden = false;
+  resetPractice();
+  $("answer").focus();
+}
+
+async function init() {
+  try {
+    state.config = await api("/api/config");
+  } catch (e) {
+    $("startError").textContent = "Couldn't reach the local server. Check that server.py is running.";
+    return;
+  }
+  $("roleName").textContent = "for " + state.config.role.toLowerCase() + " roles";
+  const m = $("mode");
+  if (state.config.mode === "openai") { m.textContent = `Live AI: ${state.config.model}`; m.className = "mode live"; }
+  else { m.textContent = "Simulated AI: mock rules"; m.className = "mode mock"; }
+}
+
+$("startBtn").addEventListener("click", async () => {
+  $("startError").textContent = "";
+  try { await startSession($("name").value); } catch (e) { $("startError").textContent = e.message; }
+});
+
+$("submitBtn").addEventListener("click", async () => {
+  const answer = $("answer").value.trim();
+  $("practiceError").textContent = "";
+  if (!answer) { $("practiceError").textContent = "Write an answer before submitting."; return; }
+  setBusy(true);
+  $("submitBtn").textContent = "Checking your answer";
+  try {
+    const r = await api("/api/attempt", { session_id: state.sessionId, answer });
+    if (!r.counted) {
+      addEntry("answer", "You wrote", `<div class="text">${esc(answer)}</div>`);
+      addEntry("blocked", "Not counted as an attempt", `<p>${esc(r.feedback)}</p>`);
+    } else {
+      state.attempt = r.attempt;
+      addEntry("answer", `Your answer, attempt ${r.attempt}`, `<div class="text">${esc(answer)}</div>`);
+      const nudges = r.nudge.length ? `<ul>${r.nudge.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : "";
+      const lessons = r.lessons.map((l) => `<a class="lesson" href="${esc(l.url)}">Lesson: ${esc(l.title)}, ${l.minutes} min (simulated link)</a>`).join(" ");
+      addEntry("feedback", "Feedback", `<p>${esc(r.feedback)}</p>${nudges}${lessons}`);
+      if (r.finished) { await loadResults(); return; }
+    }
+    updateCounter();
+  } catch (e) {
+    $("practiceError").textContent = e.message;
+  } finally {
+    setBusy(false);
+    $("submitBtn").textContent = "Submit answer";
+  }
+});
+
+$("hintBtn").addEventListener("click", async () => {
+  $("practiceError").textContent = "";
+  setBusy(true);
+  try {
+    const r = await api("/api/hint", { session_id: state.sessionId, draft: $("answer").value });
+    addEntry("hint", "Hint, not counted as an attempt", `<p>${esc(r.hint)}</p>`);
+    setHintUsed(true);
+  } catch (e) { $("practiceError").textContent = e.message; }
+  finally { setBusy(false); }
+});
+
+$("finishBtn").addEventListener("click", async () => {
+  setBusy(true);
+  try { await loadResults(); } catch (e) { $("practiceError").textContent = e.message; setBusy(false); }
+});
+
+async function loadResults() {
+  state.report = await api("/api/finish", { session_id: state.sessionId });
+  $("composer").hidden = true;
+  renderProgress(state.report);
+}
+
+function renderProgress(r) {
+  $("progressRows").innerHTML = r.skills.map((s) =>
+    `<tr><td>${esc(s.name)}</td><td>${s.first_shown ? (s.first_shown === 1 ? "First attempt" : `Attempt ${s.first_shown}, after feedback`) : "Not yet shown"}</td></tr>`
+  ).join("");
+  const still = [
+    ...r.skills.filter((s) => !s.first_shown).map((s) => `${s.name}: ${s.requirement.replace(/\.$/, "").toLowerCase()}`),
+    ...r.practice_notes,
+  ];
+  $("stillWrap").hidden = still.length === 0;
+  $("still").innerHTML = still.map((s) => `<li>${esc(s)}</li>`).join("");
+  $("nextStep").textContent = r.next_step;
+  $("progress").hidden = false;
+  $("progress").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+}
+
+$("shareBtn").addEventListener("click", async () => {
+  try {
+    const r = await api("/api/share", { session_id: state.sessionId });
+    $("shareBtn").disabled = true;
+    $("shareBtn").textContent = "Shared";
+    $("shareNote").textContent = "Shared with the employer. In this prototype, sharing is simulated: it unlocks the Employer view tab.";
+    $("tabEmployer").disabled = false;
+    $("tabEmployer").title = "";
+    renderEmployer(r);
+  } catch (e) { $("shareNote").textContent = e.message; }
+});
+
+$("retakeBtn").addEventListener("click", async () => {
+  try { await startSession(state.name); window.scrollTo(0, 0); }
+  catch (e) { $("shareNote").textContent = e.message; }
+});
+
+function selectTab(which) {
+  const learner = which === "learner";
+  $("tabLearner").setAttribute("aria-selected", learner);
+  $("tabEmployer").setAttribute("aria-selected", !learner);
+  $("learner").hidden = !learner;
+  $("employer").hidden = learner;
+}
+$("tabLearner").addEventListener("click", () => selectTab("learner"));
+$("tabEmployer").addEventListener("click", () => selectTab("employer"));
+
+function renderEmployer(r) {
+  const cells = r.skills.map((s) => {
+    const cls = !s.first_shown ? "none" : s.first_shown === 1 ? "first" : "later";
+    return `<div class="cell ${cls}" title="${esc(s.name)}: ${s.first_shown ? "shown on attempt " + s.first_shown : "not yet shown"}">${SHORT[s.id]} ${s.first_shown || "none"}</div>`;
+  }).join("");
+  const rows = r.skills.map((s) =>
+    `<tr><td>${esc(s.name)}</td><td>${s.first_shown ? (s.first_shown === 1 ? "Attempt 1, independently" : `Attempt ${s.first_shown}, with feedback`) : "Not yet shown"}</td><td class="pts">${s.points}/${s.max_points}</td></tr>`
+  ).join("");
+  const evidence = r.skills.filter((s) => s.evidence).map((s) =>
+    `<div class="small muted">${esc(s.name)}</div><blockquote>"${esc(s.evidence)}"</blockquote>`
+  ).join("") || `<p class="muted">No skill evidence recorded.</p>`;
+  const notes = r.practice_notes.length
+    ? `<h2>Practice notes</h2><p class="muted small">Presentation gaps. These don't affect the score.</p><ul class="note-list">${r.practice_notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>`
+    : "";
+  const steps = r.journey.map((j) => {
+    const blocked = j.blocked_before.map((g) => `<p class="aside stop">Before this attempt: a message was blocked (${g === "asked_for_answer" ? "asked for the answer" : g === "abusive" ? "abusive language" : "off topic"}). Not counted.</p>`).join("");
+    const hints = j.hints_before.map((h) => `<p class="aside">Hint used before this attempt: ${esc(h)}</p>`).join("");
+    const chips = r.skills.map((s) => `<span class="chip ${j.levels[s.id]}">${esc(s.name)}: ${LEVEL[j.levels[s.id]]}</span>`).join("");
+    return `<li class="step"><h3>Attempt ${j.attempt}</h3>${blocked}${hints}<div class="said">${esc(j.answer)}</div><div class="chips">${chips}</div><p class="fb">Feedback given: ${esc(j.feedback)}</p></li>`;
+  }).join("");
+  const history = r.history.length
+    ? `<h2>Earlier work samples shared by this learner</h2><table class="result"><thead><tr><th>Task</th><th class="pts">Score</th></tr></thead><tbody>${r.history.map((h) => `<tr><td>${esc(h.task)}${h.retake_number ? ` (retake ${h.retake_number})` : ""}</td><td class="pts">${h.score}/${h.max_score}</td></tr>`).join("")}</tbody></table><p class="small muted">Each retake uses a different task, so scores reflect skill on new data, not a remembered answer.</p>`
+    : "";
+
+  $("employerBody").innerHTML = `
+    <h1>${esc(r.learner)}</h1>
+    <p class="muted">${esc(r.role)}. Work sample: ${esc(r.task)}${r.retake_number ? ` (retake ${r.retake_number}, new task)` : ""}.</p>
+    <div class="scoreline">
+      <div class="score">${r.score}<small>/${r.max_score} work sample score</small></div>
+      <div class="strip" aria-label="Attempt each skill was first shown">${cells}</div>
+    </div>
+    <p class="small muted">The strip shows the attempt each skill was first shown on. Each skill earns full points if shown on the first attempt, and one point less for each extra attempt. One free hint is available per task and doesn't affect the score.</p>
+    ${r.needs_review ? `<p class="flag">Flagged for human review: the AI was unsure about at least one judgement.</p>` : ""}
+    <table class="result"><thead><tr><th>Skill</th><th>First shown</th><th class="pts">Points</th></tr></thead><tbody>${rows}</tbody></table>
+    <h2>What an employer can reasonably conclude</h2>
+    <p>${esc(r.employer_conclusion)}</p>
+    <h2>Evidence in the learner's words</h2>
+    ${evidence}
+    ${notes}
+    <h2>Attempt by attempt</h2>
+    <p class="small muted">${esc(FINISH[r.finish_reason] || "Finished")}. Attempts used: ${r.attempts_used} of ${r.max_attempts}. Hints used: ${r.hints_used}. Assessed with ${r.mode === "openai" ? "live AI" : "simulated AI (mock rules)"}.</p>
+    <ol class="timeline">${steps}</ol>
+    ${history}`;
+}
+
+init();
+</script>
+</body>
+</html>
